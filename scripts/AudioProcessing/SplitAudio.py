@@ -16,7 +16,7 @@ def splitAudio(data, sampling_rate):
 	samples = []
 	curr = 0
 
-	while(len(data) - curr >= sampling_rate):
+	while(len(data) - curr >= sampling_rate * 2):
 		samples.append(data[curr : curr + sampling_rate * 2])
 		curr += sampling_rate
 
@@ -24,11 +24,10 @@ def splitAudio(data, sampling_rate):
 
 #test splitAudio function
 if __name__ == '__main__':
-	wav_path = '/home/maxwels2/Desktop/Nonspeech/n26.wav'
+	wav_path = '/home/maxwels2/Desktop/Nonspeech/n56.wav'
 	sample_rate, data  = wavfile.read(wav_path)
 	print(len(data))
 
 
 	split_audio = splitAudio(data, sample_rate)
-	print(split_audio[6])
-	print(split_audio)
+	print(len(split_audio))
