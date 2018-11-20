@@ -5,7 +5,9 @@
 '''
 
 from scipy.io import wavfile
-import numpy as numpy
+import numpy as np
+import random as rand
+
 
 # # of splits =  length of np array/(sampling_rate*2)
 # given a numpy array, split it up, based on the sampling rate given and return a list of numpy arrays
@@ -22,12 +24,27 @@ def splitAudio(data, sampling_rate):
 
 	return samples
 
+
+def padNoise(noise, sr):
+	length_out = 2 * sr
+	start_noise = rand.randint(0, (length_out - len(noise)))
+	arrout = np.zeros(length_out)
+
+	i = start_noise
+	for num in noise:
+		arrout[i] = num
+		i += 1
+
+	return arrout
+
+
 #test splitAudio function
 if __name__ == '__main__':
-	wav_path = '/home/maxwels2/Desktop/Nonspeech/n56.wav'
+	wav_path = '/home/maxwels2/Desktop/Nonspeech/n27.wav'
 	sample_rate, data  = wavfile.read(wav_path)
 	print(len(data))
 
 
 	split_audio = splitAudio(data, sample_rate)
-	print(len(split_audio))
+	padded_noise = padNoise(split_audio[0], sample_rate)
+	print(len(padded_noise))
