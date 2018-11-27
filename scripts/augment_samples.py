@@ -3,7 +3,7 @@ import os
 import argparse
 
 from AudioProcessing.DataUtils import load_wav_files
-#from AudioProcessing.AugTools import
+from AudioProcessing.AugTools import split_audio, pad_noise
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Script to augment audio samples with noise')
@@ -40,6 +40,15 @@ if __name__ == '__main__':
     clean_samples = load_wav_files(clean_dir)
     noise_samples = load_wav_files(noise_dir)
     print('Sucessfully Loaded in {} audio samples'.format(len(clean_samples.items())))
+
+    padded_noise = {}
+    target_length = 2                                   #seconds
+    for id in noise_samples.keys():
+        sample = noise_samples[id]
+        if len(sample['data'])/sample['sample_rate'] > target_length:
+            splits = split_audio(sample['data'], sample['sample_rate'], target_length)
+            for split in splits:
+                print('Too long')
 
 
 

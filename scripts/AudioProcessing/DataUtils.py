@@ -37,6 +37,7 @@ def load_wav_files(input_dir):
         input_dir:      (str) String specifiying path to directory that contains audio .wav samples
     Return:
         sample_data:    (dict) Mapping file names to audio samples and sampling rate
+                            keys: 'sample_rate', 'data'
     '''
     sample_data = {}
     file_names = os.listdir(input_dir)
