@@ -42,13 +42,28 @@ if __name__ == '__main__':
     print('Sucessfully Loaded in {} audio samples'.format(len(clean_samples.items())))
 
     padded_noise = {}
-    target_length = 2                                   #seconds
+    noise_clip_length = 1                                  #seconds
+    output_length = 2
     for id in noise_samples.keys():
         sample = noise_samples[id]
-        if len(sample['data'])/sample['sample_rate'] > target_length:
-            splits = split_audio(sample['data'], sample['sample_rate'], target_length)
-            for split in splits:
-                print('Too long')
+        if len(sample['data'])/sample['sample_rate'] > noise_clip_length:
+            splits = split_audio(sample['data'], sample['sample_rate'], noise_clip_length)
+            for i, split in enumerate(splits):
+                split = pad_noise(split, sample['sample_rate'], output_length)
+                padded_noise['{}_{}'.format(id, i)] = {'sample_rate': sample['sample_rate'],
+                                                       'data': split}
+        else:
+            padded_sample = pad_noise(sample['data'], sample['sample_rate'], output_length)
+            padded_noise['{}'.format(id)] = {'sample_rate': sample['sample_rate'],
+                                                   'data': padded_sample}
+
+    #   Verifying split and padded samples
+    for key in padded_noise.keys():
+        sample_rate = padded_noise[key]['sample_rate']
+        size = len(padded_noise[key]['data'])
+        time_length = size/sample_rate
+        assert(output_length == time_length) # Length of split and padded samples must be == to target length to cont.
+
 
 
 

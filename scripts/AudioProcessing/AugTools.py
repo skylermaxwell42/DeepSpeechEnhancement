@@ -3,6 +3,24 @@ import numpy as np
 import random as rand
 
 
+def scale_time(input_seq, factor):
+    ''' Fucntion to scale a sequence a specified factor
+
+    Paramters
+    input_seq:      (ndarray) Input sequence to be processed
+    factor:         (float) Slace factor to use for time scaling
+    '''
+    return
+
+def add_samples(x, y):
+    ''' Fucntion to super impose audio samples (Agumentation method)
+
+    Parameters:
+
+    Returns:
+    '''
+    return x + y
+
 def split_audio(data, sampling_rate, target_length):
     # # of splits =  length of np array/(sampling_rate*2)
     # given a numpy array, split it up, based on the sampling rate given and return a list of numpy arrays
@@ -19,8 +37,8 @@ def split_audio(data, sampling_rate, target_length):
     return samples
 
 
-def pad_noise(noise, sr):
-    length_out = 2 * sr
+def pad_noise(noise, sampling_rate, target_length):
+    length_out = target_length * sampling_rate
     start_noise = rand.randint(0, (length_out - len(noise)))
     arrout = np.zeros(length_out)
 

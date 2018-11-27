@@ -1,15 +1,6 @@
 import os
 from scipy.io import wavfile
 
-def scale_time(input_seq, factor):
-    ''' Fucntion to scale a sequence a specified factor
-
-    Paramters
-    input_seq:      (ndarray) Input sequence to be processed
-    factor:         (float) Slace factor to use for time scaling
-    '''
-    return
-
 
 def augment_samples(samples, ):
     ''' Function to set a pipeline up for audio augmentation
@@ -20,14 +11,7 @@ def augment_samples(samples, ):
     '''
     return
 
-def add_samples(x, y):
-    ''' Fucntion to super impose audio samples (Agumentation method)
 
-    Parameters:
-
-    Returns:
-    '''
-    return x + y
 
 def load_wav_files(input_dir):
     ''' Function to load wav files and the corresponding meta data (sampling rate)
