@@ -1,20 +1,15 @@
-'''
-    File: SplitAudio.py
-    Description: A python function to take in a wav file and split into several 2 second numpy array
-
-'''
-
 from scipy.io import wavfile
 import numpy as np
 import random as rand
 
 
-# # of splits =  length of np array/(sampling_rate*2)
-# given a numpy array, split it up, based on the sampling rate given and return a list of numpy arrays
-# each  array will be a 2 second clip
 
-# each 2 second clip will be 40k(with sampling rate of 20k) length, then shift over by 20k and so on so forth
 def splitAudio(data, sampling_rate):
+	# # of splits =  length of np array/(sampling_rate*2)
+	# given a numpy array, split it up, based on the sampling rate given and return a list of numpy arrays
+	# each  array will be a 2 second clip
+
+	# each 2 second clip will be 40k(with sampling rate of 20k) length, then shift over by 20k and so on so forth
 	samples = []
 	curr = 0
 
