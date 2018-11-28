@@ -68,4 +68,10 @@ class AudioSample(object):
         return
 
     def write_wavfile(self, path):
+        ''' Funciton to write audio sample to disk
+
+        '''
         wavfile.write(path, self.sample_rate, self.data)
+
+    def serialize_sample(self):
+        return

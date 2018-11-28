@@ -97,11 +97,12 @@ if __name__ == '__main__':
         augmented_sample = add_samples(noise_sample, audio_sample)
 
         augmented_sample.write_wavfile(os.path.join(args.output_dir, 'out_{}.wav'.format(i)))
-        break
+        if i > 25:
+            break
 
     print('{}\n'
           'Augmentation Complete:\n'
-          'Wrote: {} augmented samples to {}'.format('-'*50, len(clean_split_samples), args.output_dir))
+          'Wrote: {} augmented samples to {}'.format('-'*50, i+1, args.output_dir))
 
 
 
