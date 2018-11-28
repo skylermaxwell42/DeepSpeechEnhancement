@@ -1,9 +1,11 @@
-from scipy.io import wavfile
 import os
 import argparse
+import random as rand
+from scipy.io import wavfile
 
 from AudioProcessing.DataUtils import load_wav_files
-from AudioProcessing.AugTools import split_audio, pad_noise
+from AudioProcessing.AugTools import split_audio
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Script to augment audio samples with noise')
@@ -35,36 +37,37 @@ if __name__ == '__main__':
     output_dir = args.output_dir
 
     clean_audio_file_names = os.listdir(clean_dir)
-    noisy_audio_file_names = os.listdir(noise_dir)
+    noise_audio_file_names = os.listdir(noise_dir)
 
     clean_samples = load_wav_files(clean_dir)
     noise_samples = load_wav_files(noise_dir)
-    print('Sucessfully Loaded in {} audio samples'.format(len(clean_samples.items())))
+    print('-'*50)
+    print('Sucessfully Loaded in {} clean audio samples'.format(len(clean_samples)))
+    print('Sucessfully Loaded in {} noisy audio samples'.format(len(noise_samples)))
+    print('{}\nBegining Augmentation'.format('-'*50))
 
-    padded_noise = {}
-    noise_clip_length = 1                                  #seconds
-    output_length = 2
-    for id in noise_samples.keys():
-        sample = noise_samples[id]
-        if len(sample['data'])/sample['sample_rate'] > noise_clip_length:
-            splits = split_audio(sample['data'], sample['sample_rate'], noise_clip_length)
-            for i, split in enumerate(splits):
-                split = pad_noise(split, sample['sample_rate'], output_length)
-                padded_noise['{}_{}'.format(id, i)] = {'sample_rate': sample['sample_rate'],
-                                                       'data': split}
-        else:
-            padded_sample = pad_noise(sample['data'], sample['sample_rate'], output_length)
-            padded_noise['{}'.format(id)] = {'sample_rate': sample['sample_rate'],
-                                                   'data': padded_sample}
+    base_target_length = 2
+    noise_target_length = 1
 
-    #   Verifying split and padded samples
-    for key in padded_noise.keys():
-        sample_rate = padded_noise[key]['sample_rate']
-        size = len(padded_noise[key]['data'])
-        time_length = size/sample_rate
-        assert(output_length == time_length) # Length of split and padded samples must be == to target length to cont.
+    clean_split_samples = []
+    for audio_sample in clean_samples:
+        clean_split_samples.append(x for x in split_audio(audio_sample, base_target_length))
 
+    print('Split Clean Audio Samples to produce: {} samples'.format(len(clean_split_samples)))
 
+    noise_split_samples = []
+    for audio_sample in noise_samples:
+        for x in split_audio(audio_sample, noise_target_length):
+            noise_split_samples.append(x)
+
+    noise_padded_split_samples = []
+    for audio_sample in noise_split_samples:
+        audio_sample.pad_sample(base_target_length)
+        noise_padded_split_samples.append(audio_sample)
+
+    print('Split and Padded Noise Audio Samples to produce: {} samples'.format(len(noise_padded_split_samples)))
+
+    print(noise_padded_split_samples[123])
 
 
 

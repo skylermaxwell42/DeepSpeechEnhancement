@@ -1,27 +1,18 @@
-from scipy.io import wavfile
-import numpy as np
-import random as rand
+from .DataUtils import AudioSample
 
-
-def scale_time(input_seq, factor):
-    ''' Fucntion to scale a sequence a specified factor
-
-    Paramters
-    input_seq:      (ndarray) Input sequence to be processed
-    factor:         (float) Slace factor to use for time scaling
-    '''
-    return
 
 def add_samples(x, y):
     ''' Fucntion to super impose audio samples (Agumentation method)
 
     Parameters:
-
+        x
+        y
     Returns:
+        x + y
     '''
-    return x + y
+    return
 
-def split_audio(data, sampling_rate, target_length):
+def split_audio(audio_sample, target_length):
     # # of splits =  length of np array/(sampling_rate*2)
     # given a numpy array, split it up, based on the sampling rate given and return a list of numpy arrays
     # each  array will be a 2 second clip
@@ -30,32 +21,11 @@ def split_audio(data, sampling_rate, target_length):
     samples = []
     curr = 0
 
-    while(len(data) - curr >= sampling_rate * target_length):
-        samples.append(data[curr : curr + sampling_rate * target_length])
-        curr += sampling_rate
+    while(len(audio_sample.data) - curr >= audio_sample.sample_rate * target_length):
+        split_data = audio_sample.data[curr : curr + audio_sample.sample_rate * target_length]
+        split = AudioSample(data=split_data,
+                            sample_rate=audio_sample.sample_rate)
+        samples.append(split)
+        curr += audio_sample.sample_rate
 
     return samples
-
-
-def pad_noise(noise, sampling_rate, target_length):
-    length_out = target_length * sampling_rate
-    start_noise = rand.randint(0, (length_out - len(noise)))
-    arrout = np.zeros(length_out)
-
-    for i, num in enumerate(noise):
-        arrout[i+start_noise] = num
-        i += 1
-    return arrout
-
-'''
-#test splitAudio function
-if __name__ == '__main__':
-    wav_path = '/home/maxwels2/Desktop/Nonspeech/n27.wav'
-    sample_rate, data  = wavfile.read(wav_path)
-    print(len(data))
-
-
-    split_audio = splitAudio(data, sample_rate)
-    padded_noise = padNoise(split_audio[0], sample_rate)
-    print(len(padded_noise))
-'''
