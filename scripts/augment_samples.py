@@ -49,6 +49,7 @@ if __name__ == '__main__':
 
     base_target_length = 2
     noise_target_length = 1
+    target_sample_rate = 16000
 
     clean_split_samples = []
     #   Splitting the audio returns a list of audio sample object so we append each
@@ -65,15 +66,16 @@ if __name__ == '__main__':
     for audio_sample in noise_samples:
         for x in split_audio(audio_sample, noise_target_length):
             noise_split_samples.append(x)
+    print('Split Noise Audio Samples to produce: {} samples'.format(len(noise_split_samples)))
 
-    noise_padded_split_samples = []
-    #   Padding the noisy samples to fit the base target length for further augmentation
-    for audio_sample in noise_split_samples:
-        #   Calling this function on the object modifies the object itself
-        audio_sample.pad_sample(base_target_length)
-        noise_padded_split_samples.append(audio_sample)
+    #   Most of the Augmentation is happening here
+    #   -The functions called on these audio sample objects modify them in place
+    noise_augmented_samples = [x.pad_sample(base_target_length) for x in noise_split_samples] # Padding the noise samples
+    noise_augmented_samples = [x.resample(target_sample_rate) for x in noise_augmented_samples] # Resampling the noise data
+    clean_augmented_samples = [x.resample(target_sample_rate) for x in clean_split_samples] # Resampling the clean data
 
-    print('Split and Padded Noise Audio Samples to produce: {} samples'.format(len(noise_padded_split_samples)))
+    
+
 
 
 

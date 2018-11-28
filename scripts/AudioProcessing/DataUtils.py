@@ -2,6 +2,7 @@ import os
 import numpy as np
 import random as rand
 from scipy.io import wavfile
+import librosa
 
 def load_wav_files(input_dir):
     ''' Function to load wav files and the corresponding meta data (sampling rate)
@@ -54,9 +55,12 @@ class AudioSample(object):
 
         self.data = arrout
 
-    def upsample(self, factor):
+    def resample(self, target_sample_rate):
         ''' Class method to upsample a sequence to a speficied factor
 
-            *Side effect: self.data is modified
+            *Side effect:   self.data is modified
+                            self.sample_data is modified
         '''
+        self.data = np.ndarray(librosa.core.resample(self.data, self.sample_rate, target_sample_rate))
+        self.sample_rate = target_sample_rate
         return
