@@ -41,6 +41,7 @@ if __name__ == '__main__':
 
     clean_samples = load_wav_files(clean_dir)
     noise_samples = load_wav_files(noise_dir)
+
     print('-'*50)
     print('Sucessfully Loaded in {} clean audio samples'.format(len(clean_samples)))
     print('Sucessfully Loaded in {} noisy audio samples'.format(len(noise_samples)))
@@ -50,24 +51,31 @@ if __name__ == '__main__':
     noise_target_length = 1
 
     clean_split_samples = []
+    #   Splitting the audio returns a list of audio sample object so we append each
+    #   one to an array to keep track of them
     for audio_sample in clean_samples:
-        clean_split_samples.append(x for x in split_audio(audio_sample, base_target_length))
+
+        for x in split_audio(audio_sample, base_target_length):
+            clean_split_samples.append(x)
 
     print('Split Clean Audio Samples to produce: {} samples'.format(len(clean_split_samples)))
 
     noise_split_samples = []
+    #   Same procedure as above with a different target length for the split audio clips
     for audio_sample in noise_samples:
         for x in split_audio(audio_sample, noise_target_length):
             noise_split_samples.append(x)
 
     noise_padded_split_samples = []
+    #   Padding the noisy samples to fit the base target length for further augmentation
     for audio_sample in noise_split_samples:
+        #   Calling this function on the object modifies the object itself
         audio_sample.pad_sample(base_target_length)
         noise_padded_split_samples.append(audio_sample)
 
     print('Split and Padded Noise Audio Samples to produce: {} samples'.format(len(noise_padded_split_samples)))
 
-    print(noise_padded_split_samples[123])
+
 
 
 

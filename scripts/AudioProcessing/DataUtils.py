@@ -40,6 +40,10 @@ class AudioSample(object):
                'Sample Rate:        {}'.format(len(self.data), len(self.data)/self.sample_rate, self.sample_rate)
 
     def pad_sample(self, target_length):
+        ''' Class method to randomly extend the our data set with zeros
+
+            *Side effect: self.data is modified
+        '''
         length_out = target_length * self.sample_rate
         start_noise = rand.randint(0, (length_out - len(self.data)))
         arrout = np.zeros(length_out)
@@ -51,9 +55,8 @@ class AudioSample(object):
         self.data = arrout
 
     def upsample(self, factor):
-        ''' Fucntion to upsample a sequence to a speficied factor
+        ''' Class method to upsample a sequence to a speficied factor
 
-        Paramters
-        factor:         (float) Slace factor to use for time scaling
+            *Side effect: self.data is modified
         '''
         return
