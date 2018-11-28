@@ -47,7 +47,7 @@ class AudioSample(object):
         '''
         length_out = target_length * self.sample_rate
         start_noise = rand.randint(0, (length_out - len(self.data)))
-        arrout = np.zeros(length_out)
+        arrout = np.zeros(length_out).astype(self.data.dtype)
 
         for i, num in enumerate(self.data):
             arrout[i + start_noise] = num

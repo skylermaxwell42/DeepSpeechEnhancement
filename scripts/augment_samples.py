@@ -5,7 +5,7 @@ import random as rand
 from scipy.io import wavfile
 
 from AudioProcessing.DataUtils import load_wav_files
-from AudioProcessing.AugTools import split_audio
+from AudioProcessing.AugTools import split_audio, add_samples
 
 
 def parse_args():
@@ -93,11 +93,15 @@ if __name__ == '__main__':
     #   -Before this is done the clean and noisy data must be the same length and the same sampling rate
     composite_samples = []
     for i, audio_sample in enumerate(clean_split_samples):
+        noise_sample = rand.choice(noise_augmented_samples)
+        augmented_sample = add_samples(noise_sample, audio_sample)
 
+        augmented_sample.write_wavfile(os.path.join(args.output_dir, 'out_{}.wav'.format(i)))
+        break
 
-
-        audio_sample.write_wavfile(os.path.join(args.output_dir, 'out_{}.wav'.format(i)))
-
+    print('{}\n'
+          'Augmentation Complete:\n'
+          'Wrote: {} augmented samples to {}'.format('-'*50, len(clean_split_samples), args.output_dir))
 
 
 

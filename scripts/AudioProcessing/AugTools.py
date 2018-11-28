@@ -12,7 +12,13 @@ def add_samples(x, y):
     Returns:
         x + y
     '''
-    return
+
+    assert(x.sample_rate == y.sample_rate)
+    assert(len(x.data) == len(y.data))
+
+    new_sample = AudioSample(data=(x.data + y.data),
+                             sample_rate=x.sample_rate)
+    return new_sample
 
 def split_audio(audio_sample, target_length):
     # # of splits =  length of np array/(sampling_rate*2)
