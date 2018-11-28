@@ -61,6 +61,11 @@ class AudioSample(object):
             *Side effect:   self.data is modified
                             self.sample_data is modified
         '''
-        self.data = librosa.core.resample(self.data, self.sample_rate, target_sample_rate)
+        orig_dtype = self.data.dtype
+        data = self.data.astype(np.float64)
+        self.data = librosa.core.resample(data, self.sample_rate, target_sample_rate).astype(orig_dtype)
         self.sample_rate = target_sample_rate
         return
+
+    def write_wavfile(self, path):
+        wavfile.write(path, self.sample_rate, self.data)

@@ -78,8 +78,6 @@ if __name__ == '__main__':
         audio_sample.pad_sample(base_target_length)
         noise_augmented_samples.append(audio_sample)
 
-    print(noise_augmented_samples[100])
-
     # Resampling the noise data
     for audio_sample in noise_augmented_samples:
         audio_sample.resample(target_sample_rate)
@@ -87,10 +85,18 @@ if __name__ == '__main__':
     # Resampling the clean data
     clean_augmented_samples = []
     for audio_sample in clean_split_samples:
-        audio_sample.data = audio_sample.data.astype(np.float64)
         audio_sample.resample(target_sample_rate)
+
         clean_augmented_samples.append(audio_sample)
 
+    #   Combining Noise with the Clean data for use in ML models
+    #   -Before this is done the clean and noisy data must be the same length and the same sampling rate
+    composite_samples = []
+    for i, audio_sample in enumerate(clean_split_samples):
+
+
+
+        audio_sample.write_wavfile(os.path.join(args.output_dir, 'out_{}.wav'.format(i)))
 
 
 

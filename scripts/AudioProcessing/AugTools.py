@@ -5,8 +5,10 @@ def add_samples(x, y):
     ''' Fucntion to super impose audio samples (Agumentation method)
 
     Parameters:
-        x
-        y
+        x   (AudioSample)
+        y   (AudioSample)
+
+        *
     Returns:
         x + y
     '''
