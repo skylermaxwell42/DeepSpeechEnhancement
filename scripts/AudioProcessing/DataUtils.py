@@ -61,6 +61,6 @@ class AudioSample(object):
             *Side effect:   self.data is modified
                             self.sample_data is modified
         '''
-        self.data = np.ndarray(librosa.core.resample(self.data, self.sample_rate, target_sample_rate))
+        self.data = librosa.core.resample(self.data, self.sample_rate, target_sample_rate)
         self.sample_rate = target_sample_rate
         return

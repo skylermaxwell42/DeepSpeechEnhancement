@@ -1,5 +1,6 @@
 import os
 import argparse
+import numpy as np
 import random as rand
 from scipy.io import wavfile
 
@@ -70,11 +71,27 @@ if __name__ == '__main__':
 
     #   Most of the Augmentation is happening here
     #   -The functions called on these audio sample objects modify them in place
-    noise_augmented_samples = [x.pad_sample(base_target_length) for x in noise_split_samples] # Padding the noise samples
-    noise_augmented_samples = [x.resample(target_sample_rate) for x in noise_augmented_samples] # Resampling the noise data
-    clean_augmented_samples = [x.resample(target_sample_rate) for x in clean_split_samples] # Resampling the clean data
 
-    
+    # Padding the noise samples
+    noise_augmented_samples = []
+    for audio_sample in noise_split_samples:
+        audio_sample.pad_sample(base_target_length)
+        noise_augmented_samples.append(audio_sample)
+
+    print(noise_augmented_samples[100])
+
+    # Resampling the noise data
+    for audio_sample in noise_augmented_samples:
+        audio_sample.resample(target_sample_rate)
+
+    # Resampling the clean data
+    clean_augmented_samples = []
+    for audio_sample in clean_split_samples:
+        audio_sample.data = audio_sample.data.astype(np.float64)
+        audio_sample.resample(target_sample_rate)
+        clean_augmented_samples.append(audio_sample)
+
+
 
 
 
