@@ -1,8 +1,9 @@
 import os
+import librosa
 import numpy as np
 import random as rand
+import tensorflow as tf
 from scipy.io import wavfile
-import librosa
 
 def load_wav_files(input_dir):
     ''' Function to load wav files and the corresponding meta data (sampling rate)
@@ -21,6 +22,61 @@ def load_wav_files(input_dir):
         sample_data.append(AudioSample(full_path))
 
     return sample_data
+
+
+def write_audio_enhancement_record(output_path, input_samples, target_samples, labels):
+    """ Function to Write a set of images and labels to a TF Record
+
+    Parameters:
+        output_path:        (str)
+        input_samples:      ([AudioSample])
+        target_samples:     ([AudioSample])
+
+    Returns:
+
+    """
+    writer = tf.python_io.TFRecordWriter(output_path)
+    for input_sample, target_sample, label in zip(input_samples, target_samples, labels):
+        # Create a feature
+        feature = get_audio_sample_feature(label=label,
+                                           sample_rate=input_sample.sample_rate,
+                                           input_data=input_sample.data,
+                                           target_data=target_sample.data)
+
+        # Create an example protocol buffer
+        example = tf.train.Example(features=tf.train.Features(feature=feature))
+
+        # Serialize to string and write on the file
+        writer.write(example.SerializeToString())
+
+    writer.close()
+    return
+
+def get_audio_sample_feature(label, sample_rate, input_data, target_data):
+    ''' Helper Function to get a feature for tensorflow record file writing and reading
+
+    Paramters:
+        label           (str)
+        sample_rate     (int)
+        input_data      (ndarray)
+        target_data     (ndarray)
+
+    Returns:
+        feature         (dict)
+    '''
+    feature = {'label': int64_feature(label),
+               'sample_rate': int64_feature(sample_rate),
+               'input_sample': bytes_feature(tf.compat.as_bytes(input_data.tostring())),
+               'target_sample': bytes_feature(tf.compat.as_bytes(target_data.tostring()))}
+
+    return feature
+def bytes_feature(self, value):
+    """ Helper Function to return an object that can be fed to the TF Record """
+    return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
+
+def int64_feature(self, value):
+    """ Helper Function to return an object that can be fed to the TF Record """
+    return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
 
 class AudioSample(object):
     """ Class to represent the data necessary for the augmenation of Audio Files (.wav)

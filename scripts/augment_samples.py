@@ -28,6 +28,13 @@ def parse_args():
                         required=True,
                         type=str)
 
+    ogroup = parser.add_argument_group('Optional Arguments')
+
+    ogroup.add_argument('--tf_record_path',
+                        help='Path to write a TF record to. If excluded only wav files will be written',
+                        required=False,
+                        type=str)
+
     return parser.parse_args()
 
 if __name__ == '__main__':
@@ -94,15 +101,17 @@ if __name__ == '__main__':
     composite_samples = []
     for i, audio_sample in enumerate(clean_split_samples):
         noise_sample = rand.choice(noise_augmented_samples)
-        augmented_sample = add_samples(noise_sample, audio_sample)
-
-        augmented_sample.write_wavfile(os.path.join(args.output_dir, 'out_{}.wav'.format(i)))
-        if i > 25:
-            break
+        augmented_sample = add_samples(noise_sample=noise_sample,
+                                       audio_sample=audio_sample,
+                                       attn_level=0.5)
+        augmented_sample.write_wavfile(os.path.join(args.output_dir, 'clean', 'out_{}.wav'.format(i)))
+        audio_sample.write_wavfile(os.path.join(args.output_dir, 'noise', 'out_{}.wav'.format(i)))
 
     print('{}\n'
           'Augmentation Complete:\n'
-          'Wrote: {} augmented samples to {}'.format('-'*50, i+1, args.output_dir))
+          'Wrote: {} augmented samples to {}/{}\n'
+          'Wrote: {} clean samples to {}/{}'.format('-'*50, i+1, args.output_dir, 'noise', args.output_dir, 'clean'))
+
 
 
 

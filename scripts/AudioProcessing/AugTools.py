@@ -1,23 +1,27 @@
 from .DataUtils import AudioSample
 
 
-def add_samples(x, y):
+def add_samples(noise_sample, audio_sample, attn_level):
     ''' Fucntion to super impose audio samples (Agumentation method)
 
     Parameters:
-        x   (AudioSample)
-        y   (AudioSample)
+        nosie_sample    (AudioSample)
+        audio_sample    (AudioSample)
+        attn_level      (double) [0.0 < x <= 1.0]
 
         *
     Returns:
-        x + y
+        new_sample      (AudioSample) Composite signall
     '''
 
-    assert(x.sample_rate == y.sample_rate)
-    assert(len(x.data) == len(y.data))
+    assert(isinstance(noise_sample, AudioSample))
+    assert(isinstance(audio_sample, AudioSample))
+    assert(noise_sample.sample_rate == audio_sample.sample_rate)
+    assert(len(noise_sample.data) == len(audio_sample.data))
 
-    new_sample = AudioSample(data=(x.data + y.data),
-                             sample_rate=x.sample_rate)
+    attenuated_noise =  (noise_sample.data*attn_level).astype(noise_sample.data.dtype)
+    new_sample = AudioSample(data=(attenuated_noise + audio_sample.data),
+                             sample_rate=audio_sample.sample_rate)
     return new_sample
 
 def split_audio(audio_sample, target_length):
@@ -26,6 +30,8 @@ def split_audio(audio_sample, target_length):
     # each  array will be a 2 second clip
 
     # each 2 second clip will be 40k(with sampling rate of 20k) length, then shift over by 20k and so on so forth
+    assert(isinstance(audio_sample, AudioSample))
+
     samples = []
     curr = 0
 
