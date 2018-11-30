@@ -104,13 +104,13 @@ if __name__ == '__main__':
         augmented_sample = add_samples(noise_sample=noise_sample,
                                        audio_sample=audio_sample,
                                        attn_level=0.5)
-        augmented_sample.write_wavfile(os.path.join(args.output_dir, 'clean', 'out_{}.wav'.format(i)))
-        audio_sample.write_wavfile(os.path.join(args.output_dir, 'noise', 'out_{}.wav'.format(i)))
+        augmented_sample.write_wavfile(os.path.join(args.output_dir, 'noise', 'out_{}.wav'.format(i)))
+        audio_sample.write_wavfile(os.path.join(args.output_dir, 'clean', 'out_{}.wav'.format(i)))
 
     print('{}\n'
           'Augmentation Complete:\n'
-          'Wrote: {} augmented samples to {}/{}\n'
-          'Wrote: {} clean samples to {}/{}'.format('-'*50, i+1, args.output_dir, 'noise', args.output_dir, 'clean'))
+          'Wrote: {} augmented samples to {}{}\n'
+          'Wrote: {} clean samples to {}{}'.format('-'*50, i+1, args.output_dir, 'noise', i+1, args.output_dir, 'clean'))
 
 
 
