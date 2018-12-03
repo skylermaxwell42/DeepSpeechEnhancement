@@ -4,7 +4,7 @@ import numpy as np
 import random as rand
 from scipy.io import wavfile
 
-from AudioProcessing.DataUtils import load_wav_files
+from AudioProcessing.DataUtils import load_wav_files, write_audio_enhancement_record
 from AudioProcessing.AugTools import split_audio, add_samples
 
 
@@ -30,10 +30,10 @@ def parse_args():
 
     ogroup = parser.add_argument_group('Optional Arguments')
 
-    ogroup.add_argument('--tf_record_path',
-                        help='Path to write a TF record to. If excluded only wav files will be written',
+    ogroup.add_argument('--tf_record',
+                        help='FLAG: If specified program will write TensorFlow Record',
                         required=False,
-                        type=str)
+                        action='store_true')
 
     return parser.parse_args()
 
@@ -98,14 +98,18 @@ if __name__ == '__main__':
 
     #   Combining Noise with the Clean data for use in ML models
     #   -Before this is done the clean and noisy data must be the same length and the same sampling rate
-    composite_samples = []
+    augmented_composite_samples = []
+    labels = []
     for i, audio_sample in enumerate(clean_split_samples):
         noise_sample = rand.choice(noise_augmented_samples)
         augmented_sample = add_samples(noise_sample=noise_sample,
                                        audio_sample=audio_sample,
                                        attn_level=0.5)
-        augmented_sample.write_wavfile(os.path.join(args.output_dir, 'noise', 'out_{}.wav'.format(i)))
-        audio_sample.write_wavfile(os.path.join(args.output_dir, 'clean', 'out_{}.wav'.format(i)))
+        filename = 'out_{}.wav'.format(format(i))
+        labels.append(filename)
+        augmented_composite_samples.append(augmented_sample)
+        augmented_sample.write_wavfile(os.path.join(args.output_dir, 'noise', filename))
+        audio_sample.write_wavfile(os.path.join(args.output_dir, 'clean', filename))
 
     print('{}\n'
           'Augmentation Complete:\n'
@@ -113,7 +117,12 @@ if __name__ == '__main__':
           'Wrote: {} clean samples to {}{}'.format('-'*50, i+1, args.output_dir, 'noise', i+1, args.output_dir, 'clean'))
 
 
-
+    if args.tf_record:
+        print('{}\nWriting TensorFlow Record File from generated data\n'.format('-'*50))
+        write_audio_enhancement_record(output_path=os.path.join(args.output_dir, 'speech_denoise_data_set.record'),
+                                       input_samples=clean_split_samples,
+                                       target_samples=augmented_composite_samples,
+                                       labels=labels)
 
 
 

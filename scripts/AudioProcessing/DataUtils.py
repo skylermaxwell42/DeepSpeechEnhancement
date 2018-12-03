@@ -64,19 +64,73 @@ def get_audio_sample_feature(label, sample_rate, input_data, target_data):
     Returns:
         feature         (dict)
     '''
-    feature = {'label': int64_feature(label),
+    feature = {'label': bytes_feature(tf.compat.as_bytes(label)),
                'sample_rate': int64_feature(sample_rate),
                'input_sample': bytes_feature(tf.compat.as_bytes(input_data.tostring())),
                'target_sample': bytes_feature(tf.compat.as_bytes(target_data.tostring()))}
 
     return feature
-def bytes_feature(self, value):
+def bytes_feature(value):
     """ Helper Function to return an object that can be fed to the TF Record """
     return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
 
-def int64_feature(self, value):
+def int64_feature(value):
     """ Helper Function to return an object that can be fed to the TF Record """
     return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
+
+def data_input_fn(tfrecords_path, batch_size, shuffle=False):
+    ''' Function to tell TensorFlow how to parse our custom tfrecord file
+
+    Parameters:
+        tfrecords_path      (str)
+        batch_size          (int)
+        shuffle             (Boolean)
+
+    Returns:
+        _input_fn           (Function) Data Input function to be assist with parsing tf record
+    '''
+
+    def _parser(record):
+        features = {
+            'label': tf.FixedLenFeature([], tf.string),
+            'input': tf.FixedLenFeature([], tf.string),
+            'target': tf.FixedLenFeature([], tf.string),
+            'sample_rate': tf.FixedLenFeature([], tf.int64)
+        }
+
+        parsed = tf.parse_single_example(record, features)
+        input = tf.convert_to_tensor(tf.decode_raw(parsed['input'], tf.float32))
+        target = tf.convert_to_tensor(tf.decode_raw(parsed['input'], tf.float32))
+        sample_rate = tf.convert_to_tensor(tf.decode_raw(parsed['input'], tf.float32))
+        label = parsed['label']
+
+        return input, target, sample_rate, label
+
+    def _input_fn():
+
+        if shuffle:
+            dataset = (
+                tf.data.TFRecordDataset(tfrecords_path)
+                    .map(_parser)
+                    .batch(batch_size)
+                    .shuffle(buffer_size=10000)
+                    .repeat(None) # Infinite iterations, lettng the experiment determine #epochs during training
+            )
+        else:
+            dataset = (
+                tf.data.TFRecordDataset(tfrecords_path)
+                    .map(_parser)
+                    .batch(batch_size)
+                    .repeat(None)  # Infinite iterations, lettng the experiment determine #epochs during training
+            )
+
+        iterator = dataset.make_one_shot_iterator()
+
+        batch_feats, batch_labels = iterator.get_next()
+
+        return batch_feats, batch_labels
+
+    return _input_fn
 
 class AudioSample(object):
     """ Class to represent the data necessary for the augmenation of Audio Files (.wav)
