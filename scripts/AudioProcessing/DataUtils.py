@@ -64,10 +64,12 @@ def get_audio_sample_feature(label, sample_rate, input_data, target_data):
     Returns:
         feature         (dict)
     '''
+    denoise_set = np.empty((1, len(input_data), 2))
+    denoise_set[1, :, 1] = input_data
+    denoise_set[1, :, 1] = target_data
+    denoise_set = denoise_set.astype(input_data.dytpe)
     feature = {'label': bytes_feature(tf.compat.as_bytes(label)),
-               'sample_rate': int64_feature(sample_rate),
-               'input_sample': bytes_feature(tf.compat.as_bytes(input_data.tostring())),
-               'target_sample': bytes_feature(tf.compat.as_bytes(target_data.tostring()))}
+               'denoise_set': bytes_feature(tf.compat.as_bytes(denoise_set.tostring()))}
 
     return feature
 def bytes_feature(value):
@@ -93,18 +95,14 @@ def data_input_fn(tfrecords_path, batch_size, shuffle=False):
     def _parser(record):
         features = {
             'label': tf.FixedLenFeature([], tf.string),
-            'input': tf.FixedLenFeature([], tf.string),
-            'target': tf.FixedLenFeature([], tf.string),
-            'sample_rate': tf.FixedLenFeature([], tf.int64)
+            'denoise_set': tf.FixedLenFeature([], tf.string)
         }
 
         parsed = tf.parse_single_example(record, features)
-        input = tf.convert_to_tensor(tf.decode_raw(parsed['input'], tf.float32))
-        target = tf.convert_to_tensor(tf.decode_raw(parsed['input'], tf.float32))
-        sample_rate = tf.convert_to_tensor(tf.decode_raw(parsed['input'], tf.float32))
+        denoise_set = tf.convert_to_tensor(tf.decode_raw(parsed['input'], tf.float32))
         label = parsed['label']
 
-        return input, target, sample_rate, label
+        return denoise_set, label
 
     def _input_fn():
 
