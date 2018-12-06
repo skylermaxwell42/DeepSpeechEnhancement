@@ -1,5 +1,6 @@
 import os
 import librosa
+import progressbar
 import numpy as np
 import random as rand
 import tensorflow as tf
@@ -12,14 +13,16 @@ def load_wav_files(input_dir):
     Parameters:
         input_dir:      (str) String specifiying path to directory that contains audio .wav samples
     Return:
-        sample_data:    (dict) Mapping file names to audio samples and sampling rate
-                            keys: 'sample_rate', 'data'
+        sample_data:    [AudioSample]
     '''
+    pb = progressbar.ProgressBar()
+
     sample_data = []
     file_names = os.listdir(input_dir)
-    for rel_path in file_names:
-        full_path = os.path.join(input_dir, rel_path)
-        sample_data.append(AudioSample(full_path))
+    for rel_path in pb(file_names):
+        if (rel_path[0:3] != 'out_'):
+            full_path = os.path.join(input_dir, rel_path)
+            sample_data.append(AudioSample(full_path))
 
     return sample_data
 
