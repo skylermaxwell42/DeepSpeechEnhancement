@@ -130,17 +130,21 @@ if __name__ == '__main__':
     if args.spectrogram:
         print('{}\nGenerating spectrograms from generated data\n'.format('-'*50))
         i = 0
+        clean_specs = []
+        noise_specs = []
         for noise_sample, clean_sample in zip(augmented_composite_samples, clean_augmented_samples):
-            clean_spec = generate_specgram(clean_sample, fft_size=512, step_size=(512/16))
-            noise_spec = generate_specgram(noise_sample, fft_size=512, step_size=(512/16))
+            clean_spec = np.transpose(generate_specgram(clean_sample, fft_size=512, step_size=(512/16)))
+            noise_spec = np.transpose(generate_specgram(noise_sample, fft_size=512, step_size=(512/16)))
 
             filename = 'out_{}'.format(i)
             clean_path = os.path.join(args.output_dir, 'spec', 'clean', filename)
             noise_path = os.path.join(args.output_dir, 'spec', 'noise', filename)
 
-            np.save(clean_path, clean_spec)
-            np.save(noise_path, noise_spec)
+            clean_specs.append(clean_spec)
+            noise_specs.append(noise_spec)
             i = i + 1
+        np.save(os.path.join(args.output_dir, 'spec', 'clean_specs'), np.asarray(clean_specs))
+        np.save(os.path.join(args.output_dir, 'spec', 'noise_specs'), np.asarray(noise_specs))
 
     if args.tf_record:
         print('{}\nWriting TensorFlow Record File from generated data\n'.format('-'*50))

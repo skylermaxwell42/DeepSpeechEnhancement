@@ -185,7 +185,7 @@ class AudioSample(object):
         self.data = arrout
 
     def resample(self, target_sample_rate):
-        ''' Class method to upsample a sequence to a speficied factor
+        ''' Class method to upsample a sequence to a specified factor
 
             *Side effect:   self.data is modified
                             self.sample_data is modified
