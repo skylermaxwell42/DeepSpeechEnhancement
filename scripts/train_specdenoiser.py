@@ -1,9 +1,12 @@
+
 import os
+#os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+#os.environ["CUDA_VISIBLE_DEVICES"]="3"
 import argparse
 import numpy as np
 from Models.SpectrogramModels import *
 from AudioProcessing.DataUtils import load_wav_files, AudioSample
-from AudioProcessing.TrainUtils import enhance_speech, TensorBoardImage
+from AudioProcessing.TrainUtils import enhance_speech, TensorBoardImage, DataGenerator
 from keras.models import Model
 from keras.callbacks import TensorBoard
 from keras.utils import multi_gpu_model
@@ -39,8 +42,8 @@ if __name__ =='__main__':
     input_tensor, target_tensor = SpecNet()
 
     autoencoder = Model(input_tensor, target_tensor)
-    #autoencoder = multi_gpu_model(autoencoder, gpus=4)
-    adam = Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0)
+    #autoencoder = multi_gpu_model(autoencoder, gpus=2)
+    adam = Adam(lr=0.01, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0)
     autoencoder.compile(optimizer=adam, loss='mean_squared_logarithmic_error')
 
     print(autoencoder.summary())
@@ -49,17 +52,31 @@ if __name__ =='__main__':
     input_samples = np.reshape(input_samples, (*input_samples.shape, 1))
     target_samples = np.reshape(target_samples, (*target_samples.shape, 1))
 
-    autoencoder.fit(input_samples, target_samples,
-                    epochs=10,
-                    batch_size=8,
-                    shuffle=True,
-                    validation_data=(input_samples, target_samples),
-                    callbacks=[TensorBoard(log_dir='./autoencoder',
-                                           histogram_freq=1),
-                               TensorBoardImage('Audio Example', num_samples=10)])
+    training_generator = DataGenerator(list_IDs=[x for x in range(0, input_samples.shape[0])],
+                                       batch_size=16,
+                                       input_data=input_samples,
+                                       target_data=target_samples,
+                                       dim=(input_samples.shape[0], *input_shape),
+                                       n_channels=1,
+                                       shuffle=True)
+    validation_generator = DataGenerator(list_IDs=[x for x in range(0, input_samples.shape[0])],
+                                         batch_size=16,
+                                         input_data=input_samples,
+                                         target_data=target_samples,
+                                         dim=(input_samples.shape[0], *input_shape),
+                                         n_channels=1,
+                                         shuffle=True)
 
-    autoencoder.evaluate(input_np_data, target_np_data)
+    autoencoder.fit_generator(generator=training_generator,
+                              validation_data=validation_generator,
+                              steps_per_epoch=training_generator.__len__(),
+                              validation_steps=validation_generator.__len__(),
+                              shuffle=True,
+                              epochs=50,
+                              verbose=1)
 
-    reconstructed_sample = enhance_speech(autoencoder,)
+    #autoencoder.evaluate(input_np_data, target_np_data)
 
-    reconstructed_sample.write_wavfile('wav.wav')
+    #reconstructed_sample = enhance_speech(autoencoder,)
+
+    #reconstructed_sample.write_wavfile('wav.wav')

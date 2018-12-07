@@ -9,13 +9,13 @@ def SpecNet():
 
     input = Input(shape=(256, 496, 1))
 
-    conv1 = Conv2D(filters=50,
+    conv1 = Conv2D(filters=25,
                    kernel_size=(100, 50),
                    strides=2,
                    activation='relu',
                    padding='same')(input)
 
-    conv2 = Conv2DTranspose(filters=50,
+    conv2 = Conv2DTranspose(filters=25,
                             kernel_size=(100, 50),
                             strides=2,
                             activation='relu',
