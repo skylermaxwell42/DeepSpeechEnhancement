@@ -1,13 +1,44 @@
-from keras.layers import Input, Dense, Conv1D, MaxPooling1D, UpSampling1D, AtrousConvolution1D, Conv2DTranspose, Reshape
-import keras
+from keras.layers import Input, Dense, Conv1D, MaxPooling1D, UpSampling1D, AtrousConvolution1D, Conv2DTranspose, Reshape, ELU
 from keras.layers import Activation, Dense, Input
 from keras.layers import Conv2D, Flatten
 from keras.layers import Reshape, Conv2DTranspose
 from keras.models import Model
 from keras import backend as K
-from keras.datasets import mnist
-import numpy as np
-import matplotlib.pyplot as plt
+
+def NoiseNetDense():
+
+    input = Input(shape=(1, 800))
+
+    dense2 = Dense(units=2000)(input)
+
+    dense3 = Dense(units=1000)(dense2)
+
+    encoded = Dense(units=500)(dense3)
+
+    dense3 = Dense(units=1000)(encoded)
+
+    dense4 = Dense(units=2000)(dense3)
+
+    dense5 = Dense(units=800)(dense4)
+
+    return input, dense5
+
+def NoiseNetDenseV2():
+
+    input = Input(shape=(1, 800))
+
+    dense1 = Dense(units=800)(input)
+    #elu1 = ELU()(desne1)
+
+    dense2 = Dense(units=800)(dense1)
+    #elu2 = ELU()(dense2)
+
+    dense3 = Dense(units=800)(dense2)
+    #elu3 = ELU()(dense3)
+
+    dense3 = Dense(units=800)(dense3)
+
+    return input, dense3
 
 def NoiseNet():
     ''' NoiseNet
