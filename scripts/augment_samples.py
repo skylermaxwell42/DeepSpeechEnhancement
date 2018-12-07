@@ -2,10 +2,9 @@ import os
 import argparse
 import numpy as np
 import random as rand
-from scipy.io import wavfile
 
-from AudioProcessing.DataUtils import load_wav_files, write_audio_enhancement_record
 from AudioProcessing.AugTools import split_audio, add_samples
+from AudioProcessing.DataUtils import load_wav_files, write_audio_enhancement_record, generate_specgram
 
 
 def parse_args():
@@ -32,6 +31,11 @@ def parse_args():
 
     ogroup.add_argument('--tf_record',
                         help='FLAG: If specified program will write TensorFlow Record',
+                        required=False,
+                        action='store_true')
+
+    ogroup.add_argument('--spectrogram',
+                        help='FLAG: If specified program will write spectrograms of audio samples',
                         required=False,
                         action='store_true')
 
@@ -100,22 +104,47 @@ if __name__ == '__main__':
     #   -Before this is done the clean and noisy data must be the same length and the same sampling rate
     augmented_composite_samples = []
     labels = []
-    for i, audio_sample in enumerate(clean_split_samples):
+    for i, audio_sample in enumerate(clean_augmented_samples):
         noise_sample = rand.choice(noise_augmented_samples)
         augmented_sample = add_samples(noise_sample=noise_sample,
                                        audio_sample=audio_sample,
-                                       attn_level=0.5)
+                                       attn_level=0.25)
         filename = 'out_{}.wav'.format(format(i))
         labels.append(filename)
         augmented_composite_samples.append(augmented_sample)
-        augmented_sample.write_wavfile(os.path.join(args.output_dir, 'noise', filename))
-        audio_sample.write_wavfile(os.path.join(args.output_dir, 'clean', filename))
+        augmented_sample.write_wavfile(os.path.join(args.output_dir, 'audio', 'noise', filename))
+        audio_sample.write_wavfile(os.path.join(args.output_dir, 'audio', 'clean', filename))
 
     print('{}\n'
           'Augmentation Complete:\n'
           'Wrote: {} augmented samples to {}{}\n'
-          'Wrote: {} clean samples to {}{}'.format('-'*50, i+1, args.output_dir, 'noise', i+1, args.output_dir, 'clean'))
+          'Wrote: {} clean samples to {}{}'.format('-'*50,
+                                                   len(augmented_composite_samples),
+                                                   args.output_dir,
+                                                   'audio/noise',
+                                                   len(clean_augmented_samples),
+                                                   args.output_dir,
+                                                   'audio/clean'))
 
+
+    if args.spectrogram:
+        print('{}\nGenerating spectrograms from generated data\n'.format('-'*50))
+        i = 0
+        clean_specs = []
+        noise_specs = []
+        for noise_sample, clean_sample in zip(augmented_composite_samples, clean_augmented_samples):
+            clean_spec = np.transpose(generate_specgram(clean_sample, fft_size=512, step_size=(512/16)))
+            noise_spec = np.transpose(generate_specgram(noise_sample, fft_size=512, step_size=(512/16)))
+
+            filename = 'out_{}'.format(i)
+            clean_path = os.path.join(args.output_dir, 'spec', 'clean', filename)
+            noise_path = os.path.join(args.output_dir, 'spec', 'noise', filename)
+
+            clean_specs.append(clean_spec)
+            noise_specs.append(noise_spec)
+            i = i + 1
+        np.save(os.path.join(args.output_dir, 'spec', 'clean_specs'), np.asarray(clean_specs))
+        np.save(os.path.join(args.output_dir, 'spec', 'noise_specs'), np.asarray(noise_specs))
 
     if args.tf_record:
         print('{}\nWriting TensorFlow Record File from generated data\n'.format('-'*50))

@@ -6,6 +6,24 @@ import random as rand
 import tensorflow as tf
 from scipy.io import wavfile
 
+from .SpectrogramUtils import pretty_spectrogram
+
+def generate_specgram(audio_sample, fft_size, step_size):
+    ''' Routine to generate a single spectrogram from an AudioSample
+
+    Parameters:
+        audio_sample    (AudioSample)
+        fft_size        (int)
+        step_size       (int)
+    Returns:
+        specgram
+    '''
+    assert(isinstance(audio_sample, AudioSample))
+    specgram = pretty_spectrogram(audio_sample.data, log=True, thresh=6, fft_size=512, step_size=64)
+
+    return specgram
+
+
 def load_wav_files(input_dir):
     ''' Function to load wav files and the corresponding meta data (sampling rate)
 
@@ -149,7 +167,7 @@ class AudioSample(object):
         return 'AudioSample Object:\n' \
                'Length in Samples:  {}\n' \
                'Length in Seconds:  {}\n' \
-               'Sample Rate:        {}'.format(len(self.data), len(self.data)/self.sample_rate, self.sample_rate)
+               'Sample Rate:        {}\n'.format(len(self.data), len(self.data)/self.sample_rate, self.sample_rate)
 
     def pad_sample(self, target_length):
         ''' Class method to randomly extend the our data set with zeros
@@ -158,7 +176,7 @@ class AudioSample(object):
         '''
         length_out = target_length * self.sample_rate
         start_noise = rand.randint(0, (length_out - len(self.data)))
-        arrout = np.zeros(length_out).astype(self.data.dtype)
+        arrout = np.zeros(int(length_out)).astype(self.data.dtype)
 
         for i, num in enumerate(self.data):
             arrout[i + start_noise] = num
@@ -167,7 +185,7 @@ class AudioSample(object):
         self.data = arrout
 
     def resample(self, target_sample_rate):
-        ''' Class method to upsample a sequence to a speficied factor
+        ''' Class method to upsample a sequence to a specified factor
 
             *Side effect:   self.data is modified
                             self.sample_data is modified
@@ -182,7 +200,7 @@ class AudioSample(object):
         ''' Funciton to write audio sample to disk
 
         '''
-        wavfile.write(path, self.sample_rate, self.data)
+        wavfile.write(path, self.sample_rate, self.data.astype(np.int16))
 
     def serialize_sample(self):
         return

@@ -1,5 +1,5 @@
 from .DataUtils import AudioSample
-
+from math import floor
 
 def add_samples(noise_sample, audio_sample, attn_level):
     ''' Fucntion to super impose audio samples (Agumentation method)
@@ -34,12 +34,13 @@ def split_audio(audio_sample, target_length):
 
     samples = []
     curr = 0
+    target_size = int(audio_sample.sample_rate * target_length)
 
-    while(len(audio_sample.data) - curr >= audio_sample.sample_rate * target_length):
-        split_data = audio_sample.data[curr : curr + audio_sample.sample_rate * target_length]
+    while(len(audio_sample.data) - curr >= target_size):
+        split_data = audio_sample.data[curr : curr + target_size]
         split = AudioSample(data=split_data,
                             sample_rate=audio_sample.sample_rate)
         samples.append(split)
-        curr += audio_sample.sample_rate
+        curr += target_size
 
     return samples
