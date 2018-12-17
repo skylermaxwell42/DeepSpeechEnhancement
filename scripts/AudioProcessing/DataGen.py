@@ -61,7 +61,7 @@ class DataGenerator(keras.utils.Sequence):
         return X, y
 
 
-def superCoolDenseNetMagicStuffFuckJake():
+def superCoolDenseNet():
 	
 	input = Input(shape=(800, 1))
 	dense2 = Dense(units=800)(input)
@@ -74,7 +74,7 @@ def superCoolDenseNetMagicStuffFuckJake():
 
 	return input, dense7
 
-def poopydick():
+def deep_1d_autoencoder():
 
 	# ENCODER
 	input_sig = Input(batch_shape=(None,800,1))
@@ -167,7 +167,7 @@ def main():
 									     shuffle = shuffle)
 
 
-	model_input, model_target = poopydick()
+	model_input, model_target = deep_1d_autoencoder()
 	autoencoder = keras.models.Model(model_input, model_target)
 	adam = keras.optimizers.Adam(lr=0.1, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0)
 	adadelta = keras.optimizers.Adadelta(lr=0.1)
